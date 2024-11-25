@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:peliculas_app/pages/login_page.dart';
 
 void main() {
   runApp(const PeliculasApp());
@@ -17,7 +18,7 @@ class PeliculasApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Aplicación Películas'),
+      home: const LoginPage(),
     );
   }
 }
