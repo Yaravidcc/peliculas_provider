@@ -9,6 +9,7 @@ class PasswordField extends StatelessWidget {
   final String labelText;
   final String errorMessage;
   final IconData prefixIcon;
+  final String? Function(String?)? validator;
 
   const PasswordField({
     super.key,
@@ -16,6 +17,7 @@ class PasswordField extends StatelessWidget {
     this.labelText = 'Contraseña',
     this.errorMessage = 'Error en el formato de la contraseña',
     this.prefixIcon = Icons.lock_outline,
+    this.validator,
   });
 
   @override
@@ -32,9 +34,7 @@ class PasswordField extends StatelessWidget {
       onChanged: (value) {
         if (kDebugMode) print(value);
       },
-      validator: (value) {
-        return FormValidators.passwordValidator().hasMatch(value ?? '') ? null : errorMessage;
-      },
+      validator: validator ?? (value) => FormValidators.passwordValidator().hasMatch(value ?? '') ? null : errorMessage,
     );
   }
 }

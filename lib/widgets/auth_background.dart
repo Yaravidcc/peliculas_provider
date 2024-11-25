@@ -36,7 +36,7 @@ class _HeaderIcon extends StatelessWidget {
         width: double.infinity,
         margin: const EdgeInsets.only(top: 30),
         child: const Icon(
-          FontAwesomeIcons.map,
+          FontAwesomeIcons.film,
           color: Colors.white,
           size: 120,
         ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:peliculas_app/pages/login_page.dart';
+import '../pages/pages.dart';
 
 void main() {
   runApp(const PeliculasApp());
@@ -18,25 +18,31 @@ class PeliculasApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
+      routes: {
+        HomePage.routeName: (context) => const HomePage(),
+        RegisterPage.routeName: (context) => const RegisterPage(),
+        LoginPage.routeName: (context) => const LoginPage(),
+      },
       home: const LoginPage(),
     );
   }
 }
 
-class HomePage extends StatelessWidget {
-  final String title;
 
-  const HomePage({super.key, required this.title});
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(title),
-      ),
-      body: const Center(
-        child: Text('HomePage'),
-      ),
-    );
-  }
-}
+// class HomePage extends StatelessWidget {
+//   final String title;
+
+//   const HomePage({super.key, required this.title});
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+//         title: Text(title),
+//       ),
+//       body: const Center(
+//         child: Text('HomePage'),
+//       ),
+//     );
+//   }
+// }

@@ -16,17 +16,14 @@ class RegisterPage extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 150),
+              const SizedBox(height: 190),
               CardContainer(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const SizedBox(height: 10),
                     Text(titleScreen, style: const TextStyle(fontSize: 30)),
                     const SizedBox(height: 20),
-                    const EmailField(),
-                    const SizedBox(height: 30),
-                    const PasswordField(),
+                    const _RegisterForm(),
                     const SizedBox(height: 30),
                     _widgetButtonRegistrar(context),
                   ],
@@ -44,7 +41,7 @@ class RegisterPage extends StatelessWidget {
   Widget _widgetButtonRegistrar(BuildContext context) {
     return AppFilledButton(
       onPressed: () => _onClickButtonRegistrar(context),
-      color: Theme.of(context).colorScheme.primary,
+      color: AppTheme.appTheme.primaryColor,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
         child: const Text('Registrar', style: TextStyle(color: Colors.white)),
@@ -66,5 +63,26 @@ class RegisterPage extends StatelessWidget {
     // Ocultar el teclado.
     FocusScope.of(context).unfocus();
     Navigator.pushReplacementNamed(context, HomePage.routeName);
+  }
+}
+
+class _RegisterForm extends StatelessWidget {
+  const _RegisterForm();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Form(
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          EmailField(),
+          SizedBox(height: 30),
+          PasswordField(),
+          SizedBox(height: 30),
+          PasswordField(labelText: 'Confirmar Contraseña'),
+        ],
+      ),
+    );
   }
 }
