@@ -9,6 +9,8 @@ class EmailField extends StatelessWidget {
   final String labelText;
   final String errorMessage;
   final IconData prefixIcon;
+  final String? Function(String?)? validator;
+  final void Function(String?)? onChanged;
 
   const EmailField({
     super.key,
@@ -16,6 +18,8 @@ class EmailField extends StatelessWidget {
     this.labelText = 'E-mail',
     this.errorMessage = 'El formato del correo es inválido',
     this.prefixIcon = Icons.mail_lock,
+    this.validator,
+    this.onChanged,
   });
 
   @override
@@ -28,12 +32,8 @@ class EmailField extends StatelessWidget {
         labelText: labelText,
         prefixIcon: prefixIcon,
       ),
-      onChanged: (value) {
-        if (kDebugMode) print(value);
-      },
-      validator: (value) {
-        return FormValidators.emailValidator().hasMatch(value ?? '') ? null : errorMessage;
-      },
+      validator: validator ?? (value) => FormValidators.emailValidator().hasMatch(value ?? '') ? null : errorMessage,
+      onChanged: onChanged,
     );
   }
 }

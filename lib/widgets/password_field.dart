@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../ui/ui.dart';
@@ -10,6 +9,7 @@ class PasswordField extends StatelessWidget {
   final String errorMessage;
   final IconData prefixIcon;
   final String? Function(String?)? validator;
+  final void Function(String?)? onChanged;
 
   const PasswordField({
     super.key,
@@ -18,6 +18,7 @@ class PasswordField extends StatelessWidget {
     this.errorMessage = 'Error en el formato de la contraseña',
     this.prefixIcon = Icons.lock_outline,
     this.validator,
+    this.onChanged,
   });
 
   @override
@@ -31,10 +32,8 @@ class PasswordField extends StatelessWidget {
         labelText: labelText,
         prefixIcon: prefixIcon,
       ),
-      onChanged: (value) {
-        if (kDebugMode) print(value);
-      },
       validator: validator ?? (value) => FormValidators.passwordValidator().hasMatch(value ?? '') ? null : errorMessage,
+      onChanged: onChanged,
     );
   }
 }

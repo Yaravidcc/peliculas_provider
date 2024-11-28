@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
-import '../providers/login_form_provider.dart';
+import '../providers/auth_form_provider.dart';
 import 'pages.dart';
 
 class LoginPage extends StatelessWidget {
@@ -20,7 +20,7 @@ class LoginPage extends StatelessWidget {
               const SizedBox(height: 190),
               CardContainer(
                 child: ChangeNotifierProvider(
-                  create: (context) => LoginFormProvider(),
+                  create: (context) => AuthFormProvider(),
                   builder: (context, child) => Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -44,10 +44,10 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _widgetButtonIngresar(BuildContext context) {
-    final loginForm = Provider.of<LoginFormProvider>(context);
+    final authForm = Provider.of<AuthFormProvider>(context);
 
     return AppFilledButton(
-      onPressed: loginForm.isLoading ? null : () async => await _onClickButtonIngresar(context),
+      onPressed: authForm.isLoading ? null : () async => await _onClickButtonIngresar(context),
       color: AppTheme.appTheme.primaryColor,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
@@ -67,19 +67,16 @@ class LoginPage extends StatelessWidget {
   }
 
   Future<void> _onClickButtonIngresar(BuildContext context) async {
-    final loginForm = Provider.of<LoginFormProvider>(
-      context,
-      listen: false,
-    );
+    final authForm = Provider.of<AuthFormProvider>(context, listen: false);
 
     // Ocultar el teclado.
     FocusScope.of(context).unfocus();
-    if (!loginForm.isValidForm()) return;
+    if (!authForm.isValidForm()) return;
 
-    loginForm.isLoading = true;
+    authForm.isLoading = true;
     // Agregar un delay antes de la transición a la otra página.
     await Future.delayed(const Duration(seconds: 2));
-    loginForm.isLoading = false;
+    authForm.isLoading = false;
     // ignore: use_build_context_synchronously
     Navigator.pushReplacementNamed(context, HomePage.routeName);
   }
@@ -90,10 +87,10 @@ class _LoginForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loginForm = Provider.of<LoginFormProvider>(context);
+    final authForm = Provider.of<AuthFormProvider>(context);
 
     return Form(
-      key: loginForm.formKey,
+      key: authForm.formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.center,

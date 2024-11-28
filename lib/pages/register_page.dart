@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:peliculas_app/providers/auth_form_provider.dart';
+import 'package:provider/provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
 import 'home_page.dart';
@@ -18,15 +20,19 @@ class RegisterPage extends StatelessWidget {
             children: [
               const SizedBox(height: 190),
               CardContainer(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    Text(titleScreen, style: const TextStyle(fontSize: 30)),
-                    const SizedBox(height: 20),
-                    const _RegisterForm(),
-                    const SizedBox(height: 30),
-                    _widgetButtonRegistrar(context),
-                  ],
+                child: ChangeNotifierProvider(
+                  create: (context) => AuthFormProvider(),
+                  builder: (context, child) => Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 10),
+                      Text(titleScreen, style: const TextStyle(fontSize: 30)),
+                      const SizedBox(height: 20),
+                      const _RegisterForm(),
+                      const SizedBox(height: 30),
+                      _widgetButtonRegistrar(context),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 50),
@@ -71,18 +77,33 @@ class _RegisterForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Form(
+    final authForm = Provider.of<AuthFormProvider>(context);
+
+    return Form(
+      key: authForm.formKey,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          EmailField(),
-          SizedBox(height: 30),
-          PasswordField(),
-          SizedBox(height: 30),
-          PasswordField(labelText: 'Confirmar Contraseña'),
+          EmailField(onChanged: (value) => authForm.email = (value ?? '')),
+          const SizedBox(height: 30),
+          PasswordField(onChanged: (value) => authForm.password = (value ?? '')),
+          const SizedBox(height: 30),
+          _widgetConfirmPassword(context),
         ],
       ),
+    );
+  }
+
+  Widget _widgetConfirmPassword(BuildContext context) {
+    final authForm = Provider.of<AuthFormProvider>(context, listen: false);
+    const String errorMessage = 'Las contraseñas no coinciden';
+
+    return PasswordField(
+      hintText: 'Confirme la contraseña anterior',
+      labelText: 'Confirmar Contraseña',
+      errorMessage: errorMessage,
+      validator: (val) => (val != null ? ((val == authForm.password) ? null : errorMessage) : errorMessage),
     );
   }
 }
