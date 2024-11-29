@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:peliculas_app/providers/auth_form_provider.dart';
 import 'package:provider/provider.dart';
+import '../providers/providers.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
-import 'home_page.dart';
-import 'login_page.dart';
+import 'pages.dart';
 
 class RegisterPage extends StatelessWidget {
   static String routeName = 'register_page';
@@ -29,8 +28,6 @@ class RegisterPage extends StatelessWidget {
                       Text(titleScreen, style: const TextStyle(fontSize: 30)),
                       const SizedBox(height: 20),
                       const _RegisterForm(),
-                      const SizedBox(height: 30),
-                      _widgetButtonRegistrar(context),
                     ],
                   ),
                 ),
@@ -44,17 +41,6 @@ class RegisterPage extends StatelessWidget {
     );
   }
 
-  Widget _widgetButtonRegistrar(BuildContext context) {
-    return AppFilledButton(
-      onPressed: () => _onClickButtonRegistrar(context),
-      color: AppTheme.appTheme.primaryColor,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-        child: const Text('Registrar', style: TextStyle(color: Colors.white)),
-      ),
-    );
-  }
-
   Widget _widgetIngresar(BuildContext context, bool transparent) {
     return AppTextButton(
       onPressed: () => Navigator.pushReplacementNamed(context, LoginPage.routeName),
@@ -63,12 +49,6 @@ class RegisterPage extends StatelessWidget {
         child: Text('Ya tengo una cuenta', style: TextStyle(fontSize: 18, color: AppTheme.appTheme.canvasColor)),
       ),
     );
-  }
-
-  _onClickButtonRegistrar(BuildContext context) {
-    // Ocultar el teclado.
-    FocusScope.of(context).unfocus();
-    Navigator.pushReplacementNamed(context, HomePage.routeName);
   }
 }
 
@@ -85,11 +65,13 @@ class _RegisterForm extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          EmailField(onChanged: (value) => authForm.email = (value ?? '')),
+          EmailField(onChanged: (value) => authForm.email = value),
           const SizedBox(height: 30),
-          PasswordField(onChanged: (value) => authForm.password = (value ?? '')),
+          PasswordField(onChanged: (value) => authForm.password = value),
           const SizedBox(height: 30),
           _widgetConfirmPassword(context),
+          const SizedBox(height: 30),
+          _widgetButtonRegistrar(context),
         ],
       ),
     );
@@ -105,5 +87,42 @@ class _RegisterForm extends StatelessWidget {
       errorMessage: errorMessage,
       validator: (val) => (val != null ? ((val == authForm.password) ? null : errorMessage) : errorMessage),
     );
+  }
+
+  Widget _widgetButtonRegistrar(BuildContext context) {
+    final authForm = Provider.of<AuthFormProvider>(context);
+
+    return AppFilledButton(
+      onPressed: authForm.isLoading ? null : () async => await _onClickButtonRegistrar(context),
+      color: AppTheme.appTheme.primaryColor,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        child: const Text('Registrar', style: TextStyle(color: Colors.white)),
+      ),
+    );
+  }
+
+  _onClickButtonRegistrar(BuildContext context) async {
+    final authForm = Provider.of<AuthFormProvider>(context, listen: false);
+    final authFirebase = Provider.of<AuthFirebaseProvider>(context, listen: false);
+    final String? errorMessage;
+
+    // Ocultar el teclado.
+    FocusScope.of(context).unfocus();
+    if (!authForm.isValidForm()) return;
+    authForm.isLoading = true;
+
+    errorMessage = await authFirebase.createUser(authForm.email, authForm.password);
+    if (errorMessage != null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      }
+      authForm.isLoading = false;
+      return;
+    }
+    // Agregar un delay antes de la transición a la otra página.
+    await Future.delayed(const Duration(seconds: 1));
+    authForm.isLoading = false;
+    if (context.mounted) Navigator.pushReplacementNamed(context, HomePage.routeName);
   }
 }

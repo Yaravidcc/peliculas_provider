@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/providers.dart';
 import '../theme/app_theme.dart';
 import '../widgets/widgets.dart';
-import '../providers/auth_form_provider.dart';
 import 'pages.dart';
 
 class LoginPage extends StatelessWidget {
@@ -28,8 +28,6 @@ class LoginPage extends StatelessWidget {
                       Text(titleScreen, style: const TextStyle(fontSize: 30)),
                       const SizedBox(height: 20),
                       const _LoginForm(),
-                      const SizedBox(height: 30),
-                      _widgetButtonIngresar(context),
                     ],
                   ),
                 ),
@@ -39,6 +37,46 @@ class LoginPage extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _widgetCrearCuenta(BuildContext context, bool transparent) {
+    return AppTextButton(
+      onPressed: () => Navigator.pushReplacementNamed(context, RegisterPage.routeName),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+        child: Text(
+          'Crear una nueva cuenta',
+          style: TextStyle(
+            fontSize: 18,
+            color: AppTheme.appTheme.canvasColor,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LoginForm extends StatelessWidget {
+  const _LoginForm();
+
+  @override
+  Widget build(BuildContext context) {
+    final authForm = Provider.of<AuthFormProvider>(context);
+
+    return Form(
+      key: authForm.formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          EmailField(onChanged: (value) => authForm.email = value),
+          const SizedBox(height: 30),
+          PasswordField(onChanged: (value) => authForm.password = value),
+          const SizedBox(height: 30),
+          _widgetButtonIngresar(context),
+        ],
       ),
     );
   }
@@ -56,50 +94,27 @@ class LoginPage extends StatelessWidget {
     );
   }
 
-  Widget _widgetCrearCuenta(BuildContext context, bool transparent) {
-    return AppTextButton(
-      onPressed: () => Navigator.pushReplacementNamed(context, RegisterPage.routeName),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-        child: Text('Crear una nueva cuenta', style: TextStyle(fontSize: 18, color: AppTheme.appTheme.canvasColor)),
-      ),
-    );
-  }
-
   Future<void> _onClickButtonIngresar(BuildContext context) async {
     final authForm = Provider.of<AuthFormProvider>(context, listen: false);
+    final authFirebase = Provider.of<AuthFirebaseProvider>(context, listen: false);
+    final String? errorMessage;
 
     // Ocultar el teclado.
     FocusScope.of(context).unfocus();
     if (!authForm.isValidForm()) return;
 
     authForm.isLoading = true;
+    errorMessage = await authFirebase.loginUser(authForm.email, authForm.password);
+    if (errorMessage != null) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(errorMessage)));
+      }
+      authForm.isLoading = false;
+      return;
+    }
     // Agregar un delay antes de la transición a la otra página.
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 1));
     authForm.isLoading = false;
-    // ignore: use_build_context_synchronously
-    Navigator.pushReplacementNamed(context, HomePage.routeName);
-  }
-}
-
-class _LoginForm extends StatelessWidget {
-  const _LoginForm();
-
-  @override
-  Widget build(BuildContext context) {
-    final authForm = Provider.of<AuthFormProvider>(context);
-
-    return Form(
-      key: authForm.formKey,
-      autovalidateMode: AutovalidateMode.onUserInteraction,
-      child: const Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          EmailField(),
-          SizedBox(height: 30),
-          PasswordField(),
-        ],
-      ),
-    );
+    if (context.mounted) Navigator.pushReplacementNamed(context, HomePage.routeName);
   }
 }
